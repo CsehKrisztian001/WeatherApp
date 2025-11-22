@@ -59,7 +59,16 @@ namespace WeatherApp.Services
 
                 // ÚJ: állapot + ikon
                 vm.WeatherCode = forecast.Current.Weather_Code;
-                vm.IsDay = forecast.Current.Is_Day == 1;
+                if (DateTime.TryParse(forecast.Current.Time, out var localTime))
+                {
+                    vm.LocalTime = localTime.ToString("yyyy-MM-dd HH:mm");
+                    vm.IsDay = localTime.Hour is >= 6 and < 18; // 6:00–18:00 között nappal
+                }
+                else
+                {
+                    vm.LocalTime = forecast.Current.Time;
+                    vm.IsDay = forecast.Current.Is_Day == 1;
+                }
                 vm.RainMm = forecast.Current.Rain;
                 vm.SnowMm = forecast.Current.Snowfall;
 
