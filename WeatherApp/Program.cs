@@ -1,3 +1,5 @@
+using WeatherApp.Services;
+
 namespace WeatherApp
 {
     public class Program
@@ -8,6 +10,7 @@ namespace WeatherApp
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            builder.Services.AddHttpClient<IWeatherService, OpenMeteoWeatherService>();
 
             var app = builder.Build();
 

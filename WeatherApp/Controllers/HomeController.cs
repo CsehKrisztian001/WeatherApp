@@ -1,32 +1,33 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 using WeatherApp.Models;
+using WeatherApp.Services;
 
 namespace WeatherApp.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IWeatherService _weather;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IWeatherService weather)
         {
             _logger = logger;
+            _weather = weather;
         }
 
+        [HttpGet]
         public IActionResult Index()
         {
-            return View();
+            return View(new WeatherViewModel());
         }
 
-        public IActionResult Privacy()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Index(WeatherViewModel input, CancellationToken ct)
         {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            var result = await _weather.GetCurrentTemperatureAsync(input.City ?? string.Empty, ct);
+            return View(result);
         }
     }
 }

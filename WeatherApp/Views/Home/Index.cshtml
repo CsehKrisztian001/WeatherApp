@@ -1,8 +1,33 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model WeatherApp.Models.WeatherViewModel
+@{
+    ViewData["Title"] = "Kezdőlap";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<form method="post">
+    <fieldset role="group">
+        <input type="text" name="City" value="@Model.City" placeholder="Írd be a város nevét (pl. Budapest)" aria-label="Város" />
+        <button type="submit">Lekérdezés</button>
+    </fieldset>
+</form>
+
+@if (!string.IsNullOrWhiteSpace(Model.Error))
+{
+    <article style="margin-top:1rem;"><mark>@Model.Error</mark></article>
+}
+else if (Model.TemperatureC is not null)
+{
+    <article style="margin-top:1rem;">
+        <header>
+            <strong>@(Model.ResolvedName ?? Model.City)</strong>
+        </header>
+        <p style="font-size:1.2rem;">
+            Aktuális hőmérséklet: <strong>@Model.TemperatureC.Value.ToString("0.#") °C</strong>
+        </p>
+        @if (!string.IsNullOrWhiteSpace(Model.LocalTime))
+        {
+            <footer>
+                Helyi idő: @Model.LocalTime
+            </footer>
+        }
+    </article>
+}
