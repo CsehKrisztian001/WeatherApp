@@ -41,8 +41,9 @@ namespace WeatherApp.Services
                 }
 
                 // 2) Időjárás – aktuális hőmérséklet, automatikus helyi időzóna
-                var weatherUrl =
-                    $"https://api.open-meteo.com/v1/forecast?latitude={place.Latitude}&longitude={place.Longitude}&current=temperature_2m&timezone=auto";
+                var weatherUrl = FormattableString.Invariant(
+                    $"https://api.open-meteo.com/v1/forecast?latitude={place.Latitude}&longitude={place.Longitude}&current=temperature_2m&timezone=auto"
+                    );
 
                 var forecast = await _http.GetFromJsonAsync<ForecastResponse>(weatherUrl, _jsonOptions, ct);
 
