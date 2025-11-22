@@ -16,18 +16,24 @@
 }
 else if (Model.TemperatureC is not null)
 {
-    <article style="margin-top:1rem;">
-        <header>
-            <strong>@(Model.ResolvedName ?? Model.City)</strong>
-        </header>
-        <p style="font-size:1.2rem;">
-            Aktuális hőmérséklet: <strong>@Model.TemperatureC.Value.ToString("0.#") °C</strong>
-        </p>
-        @if (!string.IsNullOrWhiteSpace(Model.LocalTime))
+    <article style="margin-top:1rem; display:flex; align-items:center; gap:.75rem;">
+        @if (!string.IsNullOrWhiteSpace(Model.IconFile))
         {
-            <footer>
-                Helyi idő: @Model.LocalTime
-            </footer>
+            <img src="~/icons/@Model.IconFile" alt="@Model.ConditionText" width="64" height="64" />
         }
+        <div>
+            <header><strong>@(Model.ResolvedName ?? Model.City)</strong></header>
+            <p style="margin:.25rem 0 0 0; font-size:1.2rem;">
+                Aktuális hőmérséklet: <strong>@Model.TemperatureC.Value.ToString("0.#") °C</strong>
+                @if (!string.IsNullOrWhiteSpace(Model.ConditionText))
+                {
+                    <span style="opacity:.75;">— @Model.ConditionText</span>
+                }
+            </p>
+            @if (!string.IsNullOrWhiteSpace(Model.LocalTime))
+            {
+                <footer style="opacity:.7;">Helyi idő: @Model.LocalTime</footer>
+            }
+        </div>
     </article>
 }

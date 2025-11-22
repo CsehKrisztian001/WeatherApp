@@ -57,6 +57,16 @@ namespace WeatherApp.Services
                 vm.LocalTime = forecast.Current.Time; // ISO string, helyi időzóna szerint
                 vm.ResolvedName = BuildResolvedName(place);
 
+                // ÚJ: állapot + ikon
+                vm.WeatherCode = forecast.Current.Weather_Code;
+                vm.IsDay = forecast.Current.Is_Day == 1;
+                vm.RainMm = forecast.Current.Rain;
+                vm.SnowMm = forecast.Current.Snowfall;
+
+                (var icon, var text) = PickIcon(vm.WeatherCode, vm.IsDay ?? true, vm.RainMm ?? 0, vm.SnowMm ?? 0);
+                vm.IconFile = icon;
+                vm.ConditionText = text;
+
                 return vm;
             }
             catch (TaskCanceledException)
@@ -69,6 +79,26 @@ namespace WeatherApp.Services
                 vm.Error = $"Váratlan hiba történt: {ex.Message}";
                 return vm;
             }
+        }
+
+        private static (string icon, string text) PickIcon(int? weatherCode, bool isDay, double rain, double snow)
+        {
+            var hasRain = rain > 0.0001;
+            var hasSnow = snow > 0.0001;
+
+            if (hasRain && hasSnow) return ("sleet.svg", "Vegyes csapadék (eső+hó)");
+            if (hasSnow) return ("snow.svg", "Havazás");
+            if (hasRain) return ("rain.svg", "Eső");
+
+            // Ha nincs csapadék, nézzük a WMO kódot (0 = tiszta)
+            // 0 tiszta; 1-3 többnyire tiszta/felhős; 45/48 köd; 51-67,80-99 csapadékos kategóriák stb.
+            if (weatherCode == 0) return (isDay ? "sun.svg" : "moon.svg", isDay ? "Tiszta nappal" : "Tiszta éjszaka");
+
+            // Opcionális: ha szeretnél külön "felhő" ikont:
+            // if (weatherCode is 1 or 2 or 3 or 45 or 48) return ("cloud.svg", "Felhős/ködös");
+
+            // Alapértelmezés: tiszta (nappal/éj)
+            return (isDay ? "sun.svg" : "moon.svg", isDay ? "Tiszta nappal" : "Tiszta éjszaka");
         }
 
         private static string BuildResolvedName(GeoResult r)
@@ -106,6 +136,10 @@ namespace WeatherApp.Services
         {
             public string? Time { get; set; }
             public double Temperature_2m { get; set; }
+            public int Is_Day { get; set; }          // 1 nappal, 0 éjjel
+            public int Weather_Code { get; set; }    // WMO kód
+            public double Rain { get; set; }            // mm
+            public double Snowfall { get; set; }        // mm
         }
     }
 }
